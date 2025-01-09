@@ -240,7 +240,7 @@
 
         <!-- 4° LISTA PERSONAJES ------------------>
         <div class="subcontenedor">
-            <h2 id="listaPersonajes">LISTA PERSONAJES</h2>
+            <h2 id="listaPersonajes"></h2>
             <form action="index.php" method="post">
                     <button type="submit" class="contboton">+</button>
                     <input type="hidden" name="agregar_pj" value="true">
