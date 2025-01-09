@@ -38,4 +38,14 @@ body {
 th{
     border: solid 2px black;
 }
+td{
+    border-radius: 10%;
+    text-align: center;
+}
+td img{
+    border-radius: 12%;
+    padding: 2.5px;
+    margin-bottom: -6%;
+    background-size: cover;
+}
 

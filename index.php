@@ -14,11 +14,13 @@
     session_start();
     ?>
     <?php
+    
     //ACTUALIZAR EL PERSONAJE DEL DÍA
-    if (isset($_GET['logout'])) {
+    if (isset($_POST['logout'])) {
         session_start();
         unset($_SESSION['array_encontrarPJ']); //Elimina ESPECÍFICAMENTE esa variable
-        header("Location: index.php"); // Redirigir con indicador de sesión cerrada
+        header("Location: index.php");
+        exit;
     }
 
     //CONSULTA PARA OBTENER TODOS LOS PERSONAJES
@@ -37,8 +39,10 @@
     //---------------------------------------------
 
     //DEFINO VARIABLES 
+    $agregar_pj="";
+    $nombre_busqueda_pj="";
+
         //MANEJO DE LA SUBIDA DE PERSONAJES
-        $agregar_pj="";
         if (isset($_POST['agregar_pj'])) {
             // Capturar los datos del formulario
             $agregar_pj = $_POST['agregar_pj'];
@@ -46,8 +50,6 @@
         //Le indica a la página que se desea agregar un personaje y si la variable es "true", entonces se despliega un menú 
 
         //BUSQUEDA DE UN PERSONAJE
-
-        $nombre_busqueda_pj="";
         if (isset($_POST['nombre_busqueda_pj'])) {
             // Capturar los datos del formulario
             $nombre_busqueda_pj = $_POST['nombre_busqueda_pj'];
@@ -56,6 +58,13 @@
 
         //En la primera variable guardo el valor del personaje que ingresó el usuario.
         //En la segunda variable le avisa a la página que se buscó X personaje, para habilitar el muestreo de la interfaz
+
+        //CONTROL PARA QUE EL ALERT DEL PJ NO ENCONTRADO APAREZCA SÓLO CUANDO SE PRESIONA "BUSCAR" Y NO CADA VEZ QUE F5
+        if (isset($_POST['pj_no_encontrado_alert'])) {
+            // Capturar los datos del formulario
+            $_SESSION['pj_no_encontrado_alert'] = "alert";
+        }
+
     //---------------
 
     ?>
@@ -75,6 +84,7 @@
         <form action="index.php" method="post">
             <input type="text" name="nombre_busqueda_pj" id="nombre_busqueda_pj" placeholder="Nombre del personaje" required>
             <button type="submit" class="contboton">BUSCAR</button>
+            <input type="hidden" name="pj_no_encontrado_alert" value="alert">
         </form>
 
         <br>
@@ -152,7 +162,9 @@
                                     if($coincidencia==true){
                                         if($campoBusquedaPJ == "img"){
                                             ?>
-                                            <td><img src="<?php echo $valorBusquedaPJ?>" alt="foto_PJ" width="50px" height="50px"></td>
+                                            <td style="background-color: black;">
+                                                <img src="<?php echo $valorBusquedaPJ?>" alt="foto_PJ" width="60px" height="60px">
+                                            </td>
                                             <?php
                                         }else{
                                             ?>
@@ -162,7 +174,9 @@
                                     }else{
                                         if($campoBusquedaPJ == "img"){
                                             ?>
-                                            <td><img src="<?php echo $valorBusquedaPJ?>" alt="foto_PJ" width="50px" height="50px"></td>
+                                            <td style="background-color: black;">
+                                                <img src="<?php echo $valorBusquedaPJ?>" alt="foto_PJ" width="60px" height="60px">
+                                            </td>
                                             <?php
                                         }else{
                                             ?>
@@ -182,11 +196,18 @@
                 </div>
             <?php
             }else{
-                ?>
-                <script>
-                    alert('No se ha encontrado ningún personaje con el nombre ingresado.');
-                </script>
-                <?php
+                if($_SESSION['pj_no_encontrado_alert']==="alert"){
+                    ?>
+                    <script>
+                        alert('No se ha encontrado ningún personaje con el nombre ingresado.');
+                    </script>
+                    <?php
+
+                    $_SESSION['pj_no_encontrado_alert']="no_alert";
+                    ?>
+                    <meta http-equiv="refresh" content="0">
+                    <?php
+                }
             }
         }    
         ?>
@@ -224,7 +245,7 @@
                     </tr>
                 </tbody>
             </table>
-            <form action="index.php" method="get">
+            <form action="index.php" method="post">
                 <button type="submit" class="contboton">ACTUALIZAR</button>
                 <input type="hidden" name="logout" value="logout">
             </form>
@@ -240,7 +261,7 @@
 
         <!-- 4° LISTA PERSONAJES ------------------>
         <div class="subcontenedor">
-            <h2 id="listaPersonajes"></h2>
+            <h2 id="listaPersonajes">LISTA PERSONAJES</h2>
             <form action="index.php" method="post">
                     <button type="submit" class="contboton">+</button>
                     <input type="hidden" name="agregar_pj" value="true">
