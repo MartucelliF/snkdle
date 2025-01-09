@@ -1,0 +1,41 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+body {
+    background-image: url("../img/fondo.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center; /* Centra la imagen */
+    background-attachment: fixed; /* Fija la imagen al fondo */
+}
+
+/*CONTENDERO PADRE . "flex-container"*/
+.contenedor {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Asegura que el contenido se alinee en la parte superior */
+    align-items: center;
+    min-height: 100vh; /* Usa vh para ocupar el 100% de la altura de la ventana */
+    padding: 0;
+}
+
+.subcontenedor{
+    background-color: rgba(81, 255, 0, 0.7);
+}
+.subcontenedorBUSCAR{
+    background-color: rgba(179, 192, 173, 0.7);
+}.subcontenedorBUSCAR td{
+    border: solid 1px black;
+    background-color: white;
+}
+
+.subcontenedorENCONTRAR{
+    background-color: rgba(179, 192, 173, 0.7);
+}
+
+th{
+    border: solid 2px black;
+}
+
