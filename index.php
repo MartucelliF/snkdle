@@ -14,58 +14,54 @@
     session_start();
     ?>
     <?php
-    
-    //ACTUALIZAR EL PERSONAJE DEL DÍA
-    if (isset($_POST['logout'])) {
-        session_start();
-        unset($_SESSION['array_encontrarPJ']); //Elimina ESPECÍFICAMENTE esa variable
-        header("Location: index.php");
-        exit;
-    }
 
     //CONSULTA PARA OBTENER TODOS LOS PERSONAJES
         //GUARDÁNDOLOS EN UN ARRAY PARA EL MUESTREO DE TODOS LOS PERSONAJES
         $consulta = "SELECT * FROM personajes";
         $consultaListaPJ = mysqli_query($conexion, $consulta);
+        
         // Almacenar todas las filas en un array
         $listaPersonajes = [];
-        while ($fila = mysqli_fetch_assoc($consultaListaPJ)) {
+        while ($fila = mysqli_fetch_assoc(result: $consultaListaPJ)) {
             $listaPersonajes[] = $fila;
         }
 
-        //SIN GUARDARLOS EN UN ARRAY
-        $consultaCamposPJ = mysqli_query($conexion, $consulta);
-        $consultaCamposPJ = mysqli_fetch_assoc($consultaCamposPJ);
+        //CONSEGUIR LOS CAMPOS
+        $consultaCampos = "DESCRIBE personajes";
+        $consultaCampos = mysqli_query($conexion, $consultaCampos);
+        
+        //--VARIAS FILAS POR CÓMO DEVUELVE LA CONSULTA LA BD --> Ejecutarla en el phpMyAdmin y se va a entender TODO
+        $consultaCamposResultado = [];
+        while ($fila = mysqli_fetch_assoc($consultaCampos)) {
+            $consultaCamposResultado[] = $fila;
+        }
+
+        //--Guardo únicamente el nombre de los campos
+        $_SESSION['campos'] = [];
+        foreach($consultaCamposResultado as $pj){
+            foreach($pj as $campopj => $valorpj){
+                if($campopj == "Field"){
+                    $_SESSION['campos'][] = $valorpj;
+                }
+            }
+        }
+
+        /*
+        print_r($consultaCamposPJ);
+        echo "<br><br>";
+        foreach($consultaCamposPJ as $campo => $valor){
+            echo "| [".$campo."] |";
+        }
+
+        echo "<br><br>";
+        foreach($listaPersonajes as $pj){
+            foreach($pj as $campopj => $valorpj){
+                echo "| [".$campopj."] => ".$valorpj." |"; 
+            }
+            echo "<br>";
+        }
+        */
     //---------------------------------------------
-
-    //DEFINO VARIABLES 
-    $agregar_pj="";
-    $nombre_busqueda_pj="";
-
-        //MANEJO DE LA SUBIDA DE PERSONAJES
-        if (isset($_POST['agregar_pj'])) {
-            // Capturar los datos del formulario
-            $agregar_pj = $_POST['agregar_pj'];
-        }
-        //Le indica a la página que se desea agregar un personaje y si la variable es "true", entonces se despliega un menú 
-
-        //BUSQUEDA DE UN PERSONAJE
-        if (isset($_POST['nombre_busqueda_pj'])) {
-            // Capturar los datos del formulario
-            $nombre_busqueda_pj = $_POST['nombre_busqueda_pj'];
-            $_SESSION['nombre_busqueda_pj'] = $nombre_busqueda_pj;
-        }
-
-        //En la primera variable guardo el valor del personaje que ingresó el usuario.
-        //En la segunda variable le avisa a la página que se buscó X personaje, para habilitar el muestreo de la interfaz
-
-        //CONTROL PARA QUE EL ALERT DEL PJ NO ENCONTRADO APAREZCA SÓLO CUANDO SE PRESIONA "BUSCAR" Y NO CADA VEZ QUE F5
-        if (isset($_POST['pj_no_encontrado_alert'])) {
-            // Capturar los datos del formulario
-            $_SESSION['pj_no_encontrado_alert'] = "alert";
-        }
-
-    //---------------
 
     ?>
 
@@ -74,156 +70,232 @@
         <!-- 1° INGRESA PERSONAJE A COMPARAR -->
 
         <?php
+        if (!isset($_SESSION['array_encontrarPJ'])) {
+            $array_encontrarPJ = "SELECT * FROM personajes ORDER BY RAND() LIMIT 1;";
+            $array_encontrarPJ = mysqli_query($conexion, $array_encontrarPJ);
+            $array_encontrarPJ = mysqli_fetch_assoc($array_encontrarPJ);
+            
+            $_SESSION['array_encontrarPJ'] = $array_encontrarPJ;
+        }
 
         ?>
-        <h1 style="color:red; background-color: black;">
-            <?php echo $_SESSION['nombre_busqueda_pj'] ?>
-        </h1>
-        <?php ;
-        ?>
-        <form action="index.php" method="post">
-            <input type="text" name="nombre_busqueda_pj" id="nombre_busqueda_pj" placeholder="Nombre del personaje" required>
-            <button type="submit" class="contboton">BUSCAR</button>
-            <input type="hidden" name="pj_no_encontrado_alert" value="alert">
-        </form>
-
         <br>
-
+        <span class="BUSCAR">
+            <form action="index.php" method="post">
+                <input type="text" name="nombre_busqueda_pj" id="nombre_busqueda_pj" placeholder="Nombre del personaje" required>
+                <button type="submit" class="contboton">BUSCAR</button>
+                <input type="hidden" name="pj_no_encontrado_alert" value="alert">
+            </form>
+            <?php
+            //CONTROL PARA QUE EL ALERT DEL PJ NO ENCONTRADO APAREZCA SÓLO CUANDO SE PRESIONA "BUSCAR" Y NO CADA VEZ QUE F5
+            if (isset($_POST['pj_no_encontrado_alert'])) {
+                // Capturar los datos del formulario
+                $_SESSION['pj_no_encontrado_alert'] = "alert";
+            }
+        ?>
+        </span>
+        
+        <?php
+        //BUSQUEDA DE UN PERSONAJE
+        ?>
+        <br>
+        <form action="index.php" method="post">
+            <button type="submit" class="contboton"><h3>BORRAR PERSONAJE INGRESADO</h3></button>
+            <input type="hidden" name="borrarPJIngresado">
+        </form>
+        <br>
         <?php
 
-        if (isset($_SESSION['nombre_busqueda_pj'])) {
-            ?>
-            <h1 style="color:red; background-color: black;">
-                <?php echo $_SESSION['nombre_busqueda_pj'] ?>
-                <?php echo "ENTRA EN EL PRIMER IF" ?>
-            </h1>
-            <?php ;
+        if (isset($_POST['nombre_busqueda_pj'])) {
+            // Capturar los datos del formulario
+            $nombre_busqueda_pj = $_POST['nombre_busqueda_pj'];
 
             //CONSULTA PARA OBTENER LOS DATOS DEL PERSONAJE INGRESADO
-            $nombre_busqueda_pj = $_SESSION['nombre_busqueda_pj'];
+            $consulta_array_busquedaPJ = "SELECT * FROM personajes WHERE nombre_personaje LIKE '%$nombre_busqueda_pj%'";
+            $consulta_array_busquedaPJ = mysqli_query($conexion, $consulta_array_busquedaPJ);
+            $numeroFilas = mysqli_num_rows($consulta_array_busquedaPJ);
 
-            $array_busquedaPJ = "SELECT * FROM personajes WHERE nombre_personaje LIKE '%$nombre_busqueda_pj%'";
-            $array_busquedaPJ = mysqli_query($conexion, $array_busquedaPJ);
-            $array_busquedaPJ = mysqli_fetch_assoc($array_busquedaPJ);
+            $consulta_array_busquedaPJ = mysqli_fetch_assoc($consulta_array_busquedaPJ);
 
-            $_SESSION['array_busquedaPJ'] = $array_busquedaPJ;
+            if(isset($consulta_array_busquedaPJ)>0){
+                $array_busquedaPJ = $consulta_array_busquedaPJ;
 
-            //CONSULTA PARA OBTENER LOS DATOS DEL PERSONAJE A BUSCAR
-            if (!isset($_SESSION['array_encontrarPJ'])) {
-                $array_encontrarPJ = "SELECT * FROM personajes ORDER BY RAND() LIMIT 1;";
-                $array_encontrarPJ = mysqli_query($conexion, $array_encontrarPJ);
-                $array_encontrarPJ = mysqli_fetch_assoc($array_encontrarPJ);
-                
-                $_SESSION['array_encontrarPJ'] = $array_encontrarPJ;
+                if(!isset($_SESSION['listaIngresados'])){
+                    
+                    $_SESSION['listaIngresados'][] = $array_busquedaPJ;
+                    
+                }else{
+
+                    echo "<br>";
+                    $coincidencia = false;
+                    foreach($_SESSION['listaIngresados'] as $idPJ => $filaPJ) {
+                     
+                        foreach($filaPJ as $campoBusquedaPJ => $valorBusquedaPJ){
+                            if(($campoBusquedaPJ == "id_personaje")&&($array_busquedaPJ['id_personaje'] == $valorBusquedaPJ)){                                      
+                                $coincidencia = true;
+                            }
+                          
+                        }    
+                    }
+
+                    if($coincidencia == false){
+                        $_SESSION['listaIngresados'][] = $array_busquedaPJ;
+                    }
+                    ?>
+                <?php
+                }
                 
             }
+            else if(($numeroFilas < 1) && (($_SESSION['pj_no_encontrado_alert']) == "alert")){
+                ?>
+                <script>
+                    alert('No se ha encontrado ningún personaje con el nombre ingresado.');
+                </script>
+                <?php
 
-            if(($_SESSION['array_busquedaPJ'])>0){
+                $_SESSION['pj_no_encontrado_alert']="no_alert";
+                ?>
+                <meta http-equiv="refresh" content="0">
+                <?php
+                
+            }
+        }
+
+        /*
             ?>
+            <h3 style="background-color: yellow;">
+            <u>COMPARACIÓN 'listaIngresados' CON 'arrayBusquedaPJ'</u>
+            <br><br>
+            <?php
+
+                $cont = count($_SESSION['listaIngresados']) -1;
+                foreach(array_reverse($_SESSION['listaIngresados']) as $filaPJ) {
+                    echo "[".($cont--)."] (";
+                    echo "<br>";
+                    foreach($filaPJ as $campoBusquedaPJ => $valorBusquedaPJ){
+                        echo "[".$campoBusquedaPJ."] => '".$valorBusquedaPJ."'"; 
+                        echo "<br>";
+                    }
+                    echo ")";
+                    echo "<br>";
+                    echo "<br>";
+                }
+            ?>
+            </h3>
+        */
+
+        if (isset($_SESSION['listaIngresados'])) {
+            
+            
+            //CONSULTA PARA OBTENER LOS DATOS DEL PERSONAJE A BUSCAR
+
+                ?>
+                <br>
+
                 <div class="subcontenedorBUSCAR">
-                    <h2>PERSONAJE INGRESADO</h2>
+                    <div>
+                        <h2>PERSONAJE INGRESADO</h2>
+                    </div>
 
-                    <table class="busqueda">
-                        <thead>
-                        <tr>
-                            <?php                       
-                            foreach($consultaCamposPJ as $campoPJ => $valorPJ) { 
-                                ?>
-                                <th><?php echo $campoPJ?></th>
-                                <?php
-                            }
-                            ?>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                                
+                    <br>
+                    <div class="tabla">
+                        <table>
                             <tr>
-                                <!-- COMPARACIÓN ENTRE PERSONAJE INGRESADO y PERSONAJE A BUSCAR -->
+                                <?php                       
+                                foreach($_SESSION['campos'] as $campoPJ) { 
+                                    ?>
+                                    <td><?php echo $campoPJ?></td>
+                                    <?php
+                                }
+                                ?>
+                            </tr>
+
+                            <!-- COMPARACIÓN ENTRE PERSONAJE INGRESADO y PERSONAJE A BUSCAR -->
+                            
+                            <?php
+                            foreach(array_reverse($_SESSION['listaIngresados']) as $filaPJ) {
+                            ?>
+                            <tr>
                                 <?php
-                               
-                                foreach($_SESSION['array_busquedaPJ'] as $campoBusquedaPJ => $valorBusquedaPJ) {        
+                                foreach($filaPJ as $campoBusquedaPJ => $valorBusquedaPJ){
+                                    
+                                    $campoActual = $campoBusquedaPJ;
+                                    $valorEncontrarPJ = $_SESSION['array_encontrarPJ'][$campoActual];
 
                                     $coincidencia = false;
-
-                                    foreach($_SESSION['array_encontrarPJ'] as $campoEncontrarPJ => $valorEncontrarPJ) { 
-
-                                        if($valorBusquedaPJ==$valorEncontrarPJ){
-                                            
-                                            $coincidencia =true;
- 
-                                        }else{
-                                            ?>
-                                            <?php
-                                        }
+                                    if($valorBusquedaPJ==$valorEncontrarPJ){
+                                        $coincidencia = true;
                                     }
-                                    
+                                
+                                    /*
+                                    echo "CampoBUSQUEDAPj [".$campoBusquedaPJ."] => ".$valorBusquedaPJ;
+                                    echo "<br> campoActual = ".$campoActual;
+                                    echo "<br><br>CampoENCONTRARPj [".$campoActual."] => ".$valorEncontrarPJ;
+                                    echo "<br>-------------------------------------<br>";
+                                    */
 
-                                    if($coincidencia==true){
-                                        if($campoBusquedaPJ == "img"){
-                                            ?>
-                                            <td style="background-color: black;">
-                                                <img src="<?php echo $valorBusquedaPJ?>" alt="foto_PJ" width="60px" height="60px">
-                                            </td>
-                                            <?php
-                                        }else{
+
+                                    //Para evitar que la img se muestre con algún color
+                                    if($campoBusquedaPJ != "img"){
+                                        if($coincidencia==true){
                                             ?>
                                             <td style="background-color: greenyellow;"><?php echo $valorBusquedaPJ?></td>
-                                            <?php
-                                        }  
-                                    }else{
-                                        if($campoBusquedaPJ == "img"){
-                                            ?>
-                                            <td style="background-color: black;">
-                                                <img src="<?php echo $valorBusquedaPJ?>" alt="foto_PJ" width="60px" height="60px">
-                                            </td>
                                             <?php
                                         }else{
                                             ?>
                                             <td style="background-color: red;"><?php echo $valorBusquedaPJ?></td>
                                             <?php
                                         }  
+                                    }else{
+                                        ?>
+                                        <td style="background-color: black;">
+                                            <img src="<?php echo $valorBusquedaPJ?>" alt="foto_PJ" width="60px" height="60px">
+                                        </td>
+                                        <?php
                                     }
-                                    ?>
-                                    <?php
                                 }
-                                
-                                ?>
+                            ?>
                             </tr>
-                                
-                        </tbody>
-                    </table>
+                            <?php    
+                            }
+                            ?>
+                        </table>
+                    </div>
+                    <br>
                 </div>
             <?php
-            }else{
-                if($_SESSION['pj_no_encontrado_alert']==="alert"){
-                    ?>
-                    <script>
-                        alert('No se ha encontrado ningún personaje con el nombre ingresado.');
-                    </script>
-                    <?php
-
-                    $_SESSION['pj_no_encontrado_alert']="no_alert";
-                    ?>
-                    <meta http-equiv="refresh" content="0">
-                    <?php
-                }
-            }
+            
         }    
+
+        
         ?>
         <br><br>
 
         <!-- IMPRIMIR DATOS DEL PERSONAJE A BUSCAR ----->
+
+        
         <?php
+
+        if (isset($_POST['borrarPJIngresado'])) {
+            session_start();
+            unset($_SESSION['listaIngresados']); //Elimina ESPECÍFICAMENTE esa variable
+                        
+            header(header: "Location: index.php");
+            ?>
+            <meta http-equiv="refresh" content="0">
+            <?php
+            exit;
+        }
+
         ?>
         <div class="subcontenedorENCONTRAR">
             
             <h2>PERSONAJE A BUSCAR</h2>
-            <table class="busqueda">
+            <table>
                 <thead>
                     <tr>
                         <?php                       
-                        foreach($consultaCamposPJ as $campoPJ => $valorPJ) { 
+                        foreach($_SESSION['campos'] as $campoPJ) { 
                             
                             ?>
                             <th><?php echo $campoPJ?></th>
@@ -237,9 +309,18 @@
                     <tr>
                         <?php                       
                         foreach($_SESSION['array_encontrarPJ'] as $campoEncontrarPJ => $valorEncontrarPJ) { 
-                            ?>
-                            <td><?php echo $valorEncontrarPJ?></td>
-                            <?php
+                            if($campoEncontrarPJ=="img"){
+                                ?>
+                                <td style="background-color: black;">
+                                    <img src="<?php echo $valorEncontrarPJ?>" alt="foto_PJ" width="60px" height="60px">
+                                </td>
+                                <?php
+                            }else{
+                                ?>
+                                    <td><?php echo $valorEncontrarPJ?></td>
+                                <?php    
+                            }
+                            
                         }
                         ?>
                     </tr>
@@ -249,9 +330,19 @@
                 <button type="submit" class="contboton">ACTUALIZAR</button>
                 <input type="hidden" name="logout" value="logout">
             </form>
+            
+            <?php
+            //ACTUALIZAR EL PERSONAJE DEL DÍA
+            if (isset($_POST['logout'])) {
+                session_start();
+                unset($_SESSION['array_encontrarPJ']); //Elimina ESPECÍFICAMENTE esa variable
+                header("Location: index.php");
+                exit;
+            }
+            ?>
 
         </div>
-        <?php
+        <input?php
         
         ?>
         <!-------------------------------------->
@@ -262,45 +353,111 @@
         <!-- 4° LISTA PERSONAJES ------------------>
         <div class="subcontenedor">
             <h2 id="listaPersonajes">LISTA PERSONAJES</h2>
-            <form action="index.php" method="post">
-                    <button type="submit" class="contboton">+</button>
-                    <input type="hidden" name="agregar_pj" value="true">
-                </form>
+            <form action="index.php#listaPersonajes" method="post">
+                <button type="submit" class="contboton">+</button>
+                <input type="hidden" name="agregar_pj" value="true">
+            </form>
+            <br>
             <?php
+            
+            //MANEJO DE LA SUBIDA DE PERSONAJES
+            if (isset($_POST['agregar_pj'])) {
+                // Capturar los datos del formulario
+                $agregar_pj = $_POST['agregar_pj'];
                 
-            if($agregar_pj=="true"){
-            ?>
+            }
+            //Le indica a la página que se desea agregar un personaje y si la variable es "true", entonces se despliega un menú
+  
+            if (isset($agregar_pj) && $agregar_pj == "true") {
+                echo "['agregar_pj'] = ".$agregar_pj;
+                ?>
+
                 <form action="php/gestionPersonajes.php?paso=0" method="post">
                     <fieldset>
-                        <label for="correo_usuario"><b>Nombre: </b></label>
-                        <input type="text" name="nombre_personaje" id="nombre_personaje" placeholder="Nombre Apellido" required>
-                        <br>
-                        <label><b>Género: </b></label>
-                        <label>Masculino</label>
-                        <input type="radio" name="genero_personaje" value="Masculino">
-                        <label>Femenino</label>
-                        <input type="radio" name="genero_personaje" value="Femenino">
-
-                        <input type="hidden" name="agregar_pj" value="false">
-                        <br>
+                        
+                        <?php
+                        foreach($_SESSION['campos'] as $campoPJ){
+                            if($campoPJ != "id_personaje"){
+                                ?>      
+                                <br>
+                                <label for="<?php echo $campoPJ; ?>"><b><?php echo $campoPJ; ?>: </b></label>
+                                <input type="text" name="<?php echo $campoPJ; ?>" id="<?php echo $campoPJ; ?>">
+                                <br>
+                                <input type="hidden" name="agregar_pj" value="false">
+                                <input type="hidden" name="array_NuevoPJ" value="true">
+                                <?php
+                            }else{
+                                //Defino el valor del "id_personaje" como vacio para que luego la BD lo asigne AUTO_INCREMENT
+                                //Así no da error como "no definido"
+                                ?>
+                                <input type="hidden" name="id_personaje" value="">
+                                <?php
+                            }
+                        }
+                        ?>
                     </fieldset>
-                    <br>               
+                    <?php
+                    ?>
+                    <br>
                     <button type="submit" class="contboton">AGREGAR</button>
+                    </button> 
                 </form>
-            <?php    
-            }
+                <br>
+                <form action="index.php#listaPersonajes" method="post">
+                    <button type="submit" class="contboton">CANCELAR</button>
+                    <input type="hidden" name="agregar_pj" value="false">
+                </form>
+                <br>
                 
+                <form action="php/gestionPersonajes.php?paso=3" method="post">
+                    <fieldset>
+                        <h3>ALTER TABLE personajes ADD COLUMN <br>
+                            <input type="text" name="nombre_columna" id="nombre_columna" placeholder="Nombre de la columna">
+                            <input type="radio" name="tipo_dato" value="VARCHAR"> VARCHAR 
+                            <input type="radio" name="tipo_dato" value="INT"> INT
+                            <input type="text" name="longitud_dato" placeholder="Longitud del dato">
+                        </h3>
+                    </fieldset>
+                    <?php
+                    ?>
+                    <button type="submit" class="contboton">AGREGAR COLUMNA</button>
+                    </button> 
+                    <br>
+                    <br>
+                </form>
+
+                <form action="php/gestionPersonajes.php?paso=4" method="post">
+                <fieldset>
+                    <h3>ALTER TABLE personajes DROP COLUMN <br>
+                        <input type="text" name="nombre_columna" id="nombre_columna" placeholder="Nombre de la columna">
+
+                    </h3>
+                </fieldset>
+                <?php
                 ?>
+                <button type="submit" class="contboton">ELIMINAR COLUMNA</button>
+                </button> 
+                <br>
+                <br>
+                </form>
+                <?php
+
+            }
+
+            
+    
+            ?>
             <div class="personajes">
                 <table>
                     <thead>
                         <tr>
                             <?php                       
-                            foreach($consultaCamposPJ as $campoPJ => $valorPJ) { 
-                                
-                                ?>
-                                <th><?php echo $campoPJ?></th>
-                                <?php
+                            foreach($_SESSION['campos'] as $campoPJ) { 
+                                if($campoPJ != "id_personaje"){
+                                    ?>
+                                    <th><?php echo $campoPJ?></th>
+                                    <?php                                
+                                }
                             }
                             ?>
                         </tr>
@@ -320,7 +477,7 @@
                                     <?php
                                     if($campoPJ == "id_personaje"){
                                         $id_personaje = $valorPJ;
-                                    }
+                                    }else{
                                     ?>
                                     <td>
                                         <form action="php/gestionPersonajes.php?paso=2" method="post">
@@ -333,6 +490,7 @@
                                         </form>
                                     </td>
                                     <?php
+                                    }
                                 }
                             ?>
                             </tr>

@@ -16,8 +16,9 @@ $paso=0;
 
 //Verificar conexión
 if ($conexion){ //si el valor que devuelve la función "mysqli_connect" es true...
-    echo "Conexión exitosa papu!";
     /*
+    echo "Conexión exitosa papu!";
+    
     ?>
         <!DOCTYPE html>
         <html lang="en">
