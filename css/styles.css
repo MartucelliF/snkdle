@@ -1,3 +1,9 @@
+@font-face {
+    font-family: snk_font;
+    src: url("../font/snk_font.TTF");
+};
+
+
 html, body {
     height: 100%;
     margin: 0;
@@ -22,20 +28,9 @@ body {
 }
 
 .subcontenedor{
-    background-color: rgba(81, 255, 0, 0.7);
-}
-
-.subcontenedorBUSCAR td{
-    border: solid 1px black;
-    background-color: white;
-}
-
-.subcontenedorENCONTRAR{
-    background-color: rgba(179, 192, 173, 0.7);
-}
-
-th{
-    border: solid 2px black;
+    font-family: snk_font;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 20px 20px 10px 10px;
 }
 td{
     border-radius: 10%;
@@ -52,16 +47,41 @@ tr{
     border: black 20px solid;
 }
 
-
-
-.subcontenedorBUSCAR{
-    background-color: rgba(179, 192, 173, 0.7);
+.subcontenedor{
     display: flex;
     flex-direction: column;
 }
-.subcontenedorBUSCAR div.tabla{
-    display: flex;
-    justify-content: center;
+
+button.titulo img:hover{
+    transform: scale(1.1); 
 }
 
+/*MENÚ MODOS*/
+.menuModos button{
+    border: none;
+    background-color: transparent;
+}.menuModos img:hover{
+    transform: scale(1.1); 
+}
+/*----------*/
 
+/*BOTÓN BÚSQUEDA*/
+.botonBusqueda{
+    background-color: rgb(109, 6, 0);
+    border-radius: 8px;
+    padding: 10px;
+}.botonInput{
+    font-family: snk_font;
+    border-radius: 8px;
+    border: solid 2px black;
+    text-align: center;
+    font-size: 20px;
+    padding: 8px;
+}.botonBuscar{
+    border-radius: 8px;
+    font-size: 20px;
+}.botonBuscar:hover{
+    background-color: rgb(216, 216, 216);
+    transform: scale(1.1); 
+}
+/*--------------*/

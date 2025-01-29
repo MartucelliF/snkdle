@@ -34,29 +34,27 @@ session_start();
                 <?php
                     //MANEJO DE LA SUBIDA DE PERSONAJES
                     if (isset($_POST['array_NuevoPJ'])) {
-                        // Capturar los datos del formulario
-                        $array_NuevoPJ = $_POST['array_NuevoPJ'];
-                        
+
                         $array_NuevoPJ = [];
                         
                         foreach($_SESSION['campos'] as $campoPJ){
                             $array_NuevoPJ[$campoPJ] = $_POST[$campoPJ];
                         }
 
-                        $insertPJ_parte1= "INSERT INTO `personajes`(`id_personaje`, `nombre_personaje`, `genero_personaje`, `img`) VALUES ('','','','')";
+                        $insertPJ_parte1= "INSERT INTO `personajes`(`id_personaje`) VALUES ('')";
                         $insertPJ_parte1 = mysqli_query($conexion, $insertPJ_parte1);
 
                         foreach($array_NuevoPJ as $campoPJ => $valorPJ) {
-                            $insertPJ_parte2= "UPDATE `personajes` SET $campoPJ='$valorPJ' WHERE id_personaje = (SELECT MAX(id_personaje) FROM personajes)";
-                            $insertPJ_parte2 = mysqli_query($conexion, $insertPJ_parte2);
+                            if($campoPJ != "id_personaje"){
+                                $insertPJ_parte2= "UPDATE `personajes` SET $campoPJ='$valorPJ' WHERE id_personaje = (SELECT MAX(id_personaje) FROM personajes)";
+                                $insertPJ_parte2 = mysqli_query($conexion, $insertPJ_parte2);
+                            }
                         }
-
-                        echo "<br><br>";
                     }
                 ?>
                 </h3>
                 <?php
-                
+                header("Location: modos/clasico.php#listaPersonajes");
             break;
 
             case 1:
@@ -65,7 +63,7 @@ session_start();
                 $eliminarPj= "DELETE FROM personajes WHERE id_personaje = $id_personaje;";
                 $eliminarPj = mysqli_query($conexion,$eliminarPj);
 
-                header("Location: ../index.php#listaPersonajes");
+                header("Location: modos/clasico.php#listaPersonajes");
             break;
 
             case 2:
@@ -82,7 +80,7 @@ session_start();
                 $modificarPj= "UPDATE personajes SET $campoPJ='$nuevo_valorPJ' WHERE id_personaje = $id_personaje;";
                 $modificarPj = mysqli_query($conexion, $modificarPj);
 
-                header("Location: ../index.php#listaPersonajes");
+                header("Location: modos/clasico.php#$id_personaje");
 
             break;
 
@@ -99,7 +97,7 @@ session_start();
                 $agregarColumna= "ALTER TABLE personajes ADD COLUMN $nombre_columna $tipo_dato($longitud_dato) NOT NULL;";
                 $agregarColumna = mysqli_query($conexion, $agregarColumna);
 
-                header("Location: ../index.php");
+                header("Location: modos/clasico.php");
 
             break;
 
@@ -110,7 +108,7 @@ session_start();
                 $eliminarColumna= "ALTER TABLE personajes DROP COLUMN $nombre_columna;";
                 $eliminarColumna = mysqli_query($conexion, $eliminarColumna);
 
-                header("Location: ../index.php");
+                header("Location: modos/clasico.php");
 
             break;
         }
