@@ -85,3 +85,18 @@ button.titulo img:hover{
     transform: scale(1.1); 
 }
 /*--------------*/
+
+/*MODO FRASE*/
+.rectanguloFrase{
+    border: solid 3px black;
+    border-radius: 30px;
+    background-color: green;
+    text-align: center;
+    font-family: snk_font;
+    font-size: 25px;
+}.rectanguloFrase p{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    padding: 0 10px 0 10px;
+    font-size: 30px;
+}
+/*----------*/

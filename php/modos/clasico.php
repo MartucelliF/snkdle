@@ -145,8 +145,8 @@
 
             $_SESSION['array_encontrarPJ'] = $array_encontrarPJ;
         }
-
         ?>
+        
         <br>
 
         <nav class="botonBusqueda">
@@ -473,8 +473,8 @@
                         </fieldset>
                         <?php
                         ?>
+                        <input type="hidden" name="paso" value="0">
                         <button type="submit" class="contboton">AGREGAR PERSONAJE</button>
-                        </button> 
                     </form>                
                     <br>
                     
@@ -485,6 +485,7 @@
                                 <input type="radio" name="tipo_dato" value="VARCHAR"> VARCHAR 
                                 <input type="radio" name="tipo_dato" value="INT"> INT
                                 <input type="text" name="longitud_dato" placeholder="Longitud del dato">
+                                <input type="hidden" name="paso" value="3">
                             </h3>
                         </fieldset>
                         <?php
@@ -498,8 +499,8 @@
                     <form action="../gestionPersonajes.php?paso=4" method="post">
                     <fieldset>
                         <h3>ALTER TABLE personajes DROP COLUMN <br>
-                            <input type="text" name="nombre_columna" id="nombre_columna" placeholder="Nombre de la columna">
-
+                            <input type="text" name="nombre_columna" id="nombre_columna" placeholder="Nombre de la columna" required>
+                            <input type="hidden" name="paso" value="4">
                         </h3>
                     </fieldset>
                     <?php
@@ -558,15 +559,11 @@
                                                 <button type="submit" value="Modificar" class="contboton">Modificar</button>
                                                 <input type="hidden" name="campo" value="<?php echo $campoPJ; ?>">
                                                 <input type="hidden" name="valor" value="<?php echo $valorPJ; ?>">
-                                                
-                                                    <input type="hidden" name="id_personaje" value="<?php echo $id_personaje; ?>">
-                                                <?php
-                                                
-                                                ?>
+                                                <input type="hidden" name="id_personaje" value="<?php echo $id_personaje; ?>">
+                                                <input type="hidden" name="paso" value="2">
                                             </form>
                                         </td>
                                         <?php
-                                        
                                     }
                                 ?>
                                 </tr>
@@ -576,6 +573,7 @@
                                         <button type="submit" value="Eliminar" class="contboton">Eliminar</button>
                                         <br><br>
                                         <input type="hidden" name="id_personaje" value="<?php echo $id_personaje?>">
+                                        <input type="hidden" name="paso" value="1">
                                     </form>
                                 </td> 
                             

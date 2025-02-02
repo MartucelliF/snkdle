@@ -26,11 +26,11 @@
             </button>
             <br>
             <button>
-                <a href=""><img src="img/botones/modoFrase.png" width="450px" heigth="450px" alt="modoClasico"></a>
+                <a href="php/modos/frase.php"><img src="img/botones/modoFrase.png" width="450px" heigth="450px" alt="modoFrase"></a>
             </button>
             <br>
             <button>
-                <a href=""><img src="img/botones/modoSplash.png" width="450px" heigth="450px" alt="modoClasico"></a>
+                <a href=""><img src="img/botones/modoSplash.png" width="450px" heigth="450px" alt="modoSplashArt"></a>
             </button>
         </div>
     </div>

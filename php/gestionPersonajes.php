@@ -20,7 +20,7 @@ session_start();
     include("conexion.php");
 
     // Determinar el paso actual
-    $paso = isset($_GET['paso']) ? intval($_GET['paso']) : 0;
+    $paso = $_POST['paso'];
 
     ?>
     <div class="display">
